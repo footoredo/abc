@@ -1,0 +1,22 @@
+.bullet {
+  font-family: 'SimHei', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'STHeiti', 'Microsoft YaHei', sans-serif;
+  position: absolute;
+  top: 0;
+  width: auto;
+  color: white;
+  white-space: nowrap;
+  margin: 5px;
+  font-size: 145%;
+  font-weight: bold;
+  -webkit-text-stroke: 0.8px black; 
+  line-height: 1;
+}
+
+.danmuplayer {
+  overflow: hidden;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 0;
+}
+
