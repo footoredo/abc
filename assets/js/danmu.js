@@ -13,6 +13,32 @@ var sleep = function(milliseconds) {
         if ((new Date().getTime() - start) > milliseconds) break;
     }
 }
+ 
+// px/ms
+var get_velocity = function(danmu) {
+    return (770.0 + danmu.width()) / 6000;
+}
+
+var start_danmu = function(danmu) {
+    if (danmu.hasClass("top") || danmu.hasClass("bottom")) {
+        danmu.resume();
+        return;
+    }
+    velocity = get_velocity(danmu);
+   
+    danmu.animate({"left":-danmu.width()}, (danmu.position().left+danmu.width()) / velocity, "linear", function() {
+        danmu.remove();
+    });
+}
+
+var stop_danmu = function(danmu) {
+    console.log(danmu);
+    if (danmu.hasClass("top") || danmu.hasClass("bottom")) {
+        danmu.pause();
+        return;
+    }
+    danmu.stop();
+}
 
 var get_pos = function(t,h) {
     if (t) on_the_run[t].forEach(function(a){if ($("#"+a[1].id).length==0) a[0]=-1});
@@ -39,7 +65,7 @@ var shoot_danmu = function(obj) {
     if ($("#"+obj["id"]).length>0) return;
     var content = obj["context"];
     var bullet = document.createElement("div");
-    bullet.setAttribute("class", "bullet");
+    bullet.setAttribute("class", "bullet" + [""," top", "bottom"][obj["danmu_type"]]);
     bullet.id = obj["id"];
     bullet.innerHTML = content;
     bullet.style.color = obj["danmu_color"];
@@ -55,21 +81,18 @@ var shoot_danmu = function(obj) {
     if (t) bullet.style.left = (danmuplayerJQ.width() - $(bullet).width())/2.0 + "px";
     else bullet.style.left = danmuplayerJQ.width() + "px";
     bullet.style.visibility = "visible";
-    var JQ = $(bullet);
     on_the_run[t].push([pos[0],bullet]);
     if (t==1) 
-        JQ.animate({"top":pos[1]}, 3000, function() {
-            JQ.remove();
+        $(bullet).animate({"top":pos[1]}, 3000, function() {
+            $(bullet).remove();
         });
     else if (t==2)
-        JQ.animate({"bottom":pos[1]}, 3000, function() {
-            JQ.remove();
+        $(bullet).animate({"bottom":pos[1]}, 3000, function() {
+            $(bullet).remove();
         });
-    else 
-        JQ.animate({"left":-JQ.width()}, $(".danmuplayer").width()*1.0/normal_width*5000, "linear", function() {
-            JQ.remove();
-        });
-    if (api.paused) JQ.pause();
+    else start_danmu($(bullet));
+
+    if (api.paused) stop_danmu($(bullet));
 }
 
 var buffer_timeout = function(i) {
@@ -83,6 +106,7 @@ var buffer_timeout = function(i) {
 }
 
 var buffer_danmu = function() {
+    if ($(".danmuplayer").hasClass("hide")) return;
     var time = api.video.time, start=-1;
     for (var i=0; i<danmu.length; i++) {
         if (danmu[i]["send_time"]-0.000001 > time) {
@@ -90,7 +114,6 @@ var buffer_danmu = function() {
         }
     }
 
-    console.log("start:",start);
     if (start<0) return;
     for (var i=start; i<danmu.length && i-start<100; i++) {
         if (buffer.find(function(x){x==danmu[i]})) continue;
@@ -123,12 +146,11 @@ var sync_player = function() {
     danmuplayer.style.left = playerJQ.position().left + "px";
 }
 
-window.onload = function() {
+$(document).ready(function() {
     api = flowplayer();
-    video_id = document.getElementsByClassName("flowplayer")[0].id;
-    init_player();
-    normal_width = $(".flowplayer").width();
+    if (!api) return;
 
+    video_id = $(".flowplayer").attr("id");
     $.get("https://danmu.quack.press/get/video/" + video_id, function(data, status) {
         danmu = JSON.parse(data);
         danmu = danmu.sort(function(a,b){return a["send_time"]-b["send_time"]});
@@ -136,47 +158,50 @@ window.onload = function() {
         if (api.playing) buffer_danmu();
     });
 
-    api.on("ready", function() {
-        buffer_danmu();
-    });
+    api.on("load", function() {
+        console.log("done");
+        init_player();
+        normal_width = $(".flowplayer").width();
 
-    api.on("pause", function() {
-        clear_buffer();
-        $(".bullet").pause();
-    });
+        api.on("ready", function() {
+            buffer_danmu();
+        });
 
-    api.on("resume", function() {
-        $(".bullet").resume();
-        buffer_danmu();
-    });
-
-    api.on("beforeseek", function() {
-        if (api.playing) {
+        api.on("pause", function() {
             clear_buffer();
-            $(".bullet").remove();
-        }
-        else {
-            $(".bullet").remove();
-        }
+            $(".bullet").each(function(){stop_danmu($(this))});
+        });
+
+        api.on("resume", function() {
+            $(".bullet").each(function(){start_danmu($(this))});
+            buffer_danmu();
+        });
+
+        api.on("beforeseek", function() {
+            if (api.playing) {
+                clear_buffer();
+                $(".bullet").remove();
+            }
+            else {
+                $(".bullet").remove();
+            }
+        });
+
+        api.on("seek", function() {
+            if (api.playing) buffer_danmu();
+        });
+
+        api.on("fullscreen", function() {
+            $(".bullet").each(function(){stop_danmu($(this))});
+            if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
+        });
+
+        api.on("fullscreen-exit", function() {
+            $(".bullet").each(function(){stop_danmu($(this))});
+            if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
+        });
     });
-
-    api.on("seek", function() {
-        if (api.playing) buffer_danmu();
-    });
-
-    /*api.on("fullscreen", function() {
-            $(window).unbind("resize");
-            danmuplayer.style.width = "100%";
-            danmuplayer.style.height = "100%";
-            danmuplayer.style.top = "0";
-            danmuplayer.style.left = "0";
-            });
-
-    api.on("fullscreen-exit", function() {
-            sync_player();
-            $(window).resize(function(){sync_player()});
-            });*/
-};
+})
 
 
 var fire_danmu = function() {
@@ -202,8 +227,6 @@ var fire_danmu = function() {
 
     gun.value = "";
     $.post("https://danmu.quack.press/send", bullet, function(data, status) {
-            console.log(data);
-            console.log(status);
             bullet["id"] = data;
             shoot_danmu(bullet);
             setTimeout(function(){danmu.push(bullet);}, 500);
@@ -211,3 +234,13 @@ var fire_danmu = function() {
     return false;
 }
 
+var hide_danmu = function() {
+    $(".danmuplayer").addClass("hide");
+    clear_buffer();
+    $(".bullet").remove();
+}
+
+var show_danmu = function() {
+    $(".danmuplayer").removeClass("hide");
+    if (api.playing) buffer_danmu();
+}
