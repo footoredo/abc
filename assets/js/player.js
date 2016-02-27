@@ -75,11 +75,11 @@ flowplayer(function (api, root) {
         toggle.onclick = function() {
             if (toggle.innerHTML == "\uf205") {
                 toggle.innerHTML = "\uf204";
-                $(".danmuplayer").hide();
+                hide_danmu();
             }
             else {
                 toggle.innerHTML = "\uf205";
-                $(".danmuplayer").show();
+                show_danmu();
             }
         }
         document.getElementsByClassName("fp-controls")[0].appendChild(toggle);
