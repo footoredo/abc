@@ -1,5 +1,6 @@
 .bullet {
   font-family: 'SimHei', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'STHeiti', 'Microsoft YaHei', sans-serif;
+  text-shadow: black 0 0 3px;
   position: absolute;
   top: 0;
   width: auto;
