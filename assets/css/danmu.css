@@ -1,23 +1,29 @@
 .bullet {
-  font-family: 'SimHei', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'STHeiti', 'Microsoft YaHei', sans-serif;
-  text-shadow: black 0 0 3px;
-  position: absolute;
-  top: 0;
-  width: auto;
-  color: white;
-  white-space: nowrap;
-  margin: 5px;
-  font-size: 145%;
-  font-weight: bold;
-  -webkit-text-stroke: 0.8px black; 
-  line-height: 1;
+    font-family: 'SimHei', 'Hiragino Sans GB', 'WenQuanYi Micro Hei', 'STHeiti', 'Microsoft YaHei', sans-serif;
+    text-shadow: black 0 0 3px;
+    position: absolute;
+    top: 0;
+    width: auto;
+    color: white;
+    white-space: nowrap;
+    margin: 5px;
+    font-size: 145%;
+    font-weight: bold;
+    -webkit-text-stroke: 0.8px black; 
+    line-height: 1;
+    padding: 2px;
+}
+
+.bullet.new {
+    border: solid 1px;
+    box-shadow: black 0 0 3px, black 0 0 3px inset;
 }
 
 .danmuplayer {
-  overflow: hidden;
-  position: absolute;
-  z-index: 10;
-  top: 0;
-  left: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: 10;
+    top: 0;
+    left: 0;
 }
 

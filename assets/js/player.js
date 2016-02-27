@@ -20,7 +20,6 @@ flowplayer(function (api, root) {
         colorpicker_input.type = "text";
         colorpicker_input.value = "#fff";
         $(colorpicker_input).keyup(function() {
-            console.log($(this).val());
             $(colorpicker).css("color", $(this).val());
         });
         styleboard.appendChild(colorpicker_input);
@@ -133,7 +132,6 @@ flowplayer(function (api, root) {
                     timer = 0;
                 }
                 timer = setTimeout(function() {
-                    console.log("triggered");
                     if (!hiding) {
                         $(".fp-controls,.fp-time").hide();
                         $(".fp-ui").css("cursor", "none");

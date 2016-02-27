@@ -32,7 +32,6 @@ var start_danmu = function(danmu) {
 }
 
 var stop_danmu = function(danmu) {
-    console.log(danmu);
     if (danmu.hasClass("top") || danmu.hasClass("bottom")) {
         danmu.pause();
         return;
@@ -60,12 +59,11 @@ var get_pos = function(t,h) {
     return [z,y];
 }
 
-var shoot_danmu = function(obj) {
-    //console.log(danmu.findIndex(function(x){return x==obj}));
+var shoot_danmu = function(obj, newly_send) {
     if ($("#"+obj["id"]).length>0) return;
     var content = obj["context"];
     var bullet = document.createElement("div");
-    bullet.setAttribute("class", "bullet" + [""," top", "bottom"][obj["danmu_type"]]);
+    bullet.setAttribute("class", "bullet" + [""," top", " bottom"][obj["danmu_type"]] + (newly_send?" new":""));
     bullet.id = obj["id"];
     bullet.innerHTML = content;
     bullet.style.color = obj["danmu_color"];
@@ -86,10 +84,11 @@ var shoot_danmu = function(obj) {
         $(bullet).animate({"top":pos[1]}, 3000, function() {
             $(bullet).remove();
         });
-    else if (t==2)
+    else if (t==2) {
         $(bullet).animate({"bottom":pos[1]}, 3000, function() {
             $(bullet).remove();
         });
+    }
     else start_danmu($(bullet));
 
     if (api.paused) stop_danmu($(bullet));
@@ -159,50 +158,48 @@ $(document).ready(function() {
     });
 
     api.on("load", function() {
-        console.log("done");
         init_player();
         normal_width = $(".flowplayer").width();
-
-        api.on("ready", function() {
-            buffer_danmu();
-        });
-
-        api.on("pause", function() {
-            clear_buffer();
-            $(".bullet").each(function(){stop_danmu($(this))});
-        });
-
-        api.on("resume", function() {
-            $(".bullet").each(function(){start_danmu($(this))});
-            buffer_danmu();
-        });
-
-        api.on("beforeseek", function() {
-            if (api.playing) {
-                clear_buffer();
-                $(".bullet").remove();
-            }
-            else {
-                $(".bullet").remove();
-            }
-        });
-
-        api.on("seek", function() {
-            if (api.playing) buffer_danmu();
-        });
-
-        api.on("fullscreen", function() {
-            $(".bullet").each(function(){stop_danmu($(this))});
-            if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
-        });
-
-        api.on("fullscreen-exit", function() {
-            $(".bullet").each(function(){stop_danmu($(this))});
-            if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
-        });
     });
-})
 
+    api.on("ready", function() {
+        buffer_danmu();
+    });
+
+    api.on("pause", function() {
+        clear_buffer();
+        $(".bullet").each(function(){stop_danmu($(this))});
+    });
+
+    api.on("resume", function() {
+        $(".bullet").each(function(){start_danmu($(this))});
+        buffer_danmu();
+    });
+
+    api.on("beforeseek", function() {
+        if (api.playing) {
+            clear_buffer();
+            $(".bullet").remove();
+        }
+        else {
+            $(".bullet").remove();
+        }
+    });
+
+    api.on("seek", function() {
+        if (api.playing) buffer_danmu();
+    });
+
+    api.on("fullscreen", function() {
+        $(".bullet").each(function(){stop_danmu($(this))});
+        if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
+    });
+
+    api.on("fullscreen-exit", function() {
+        $(".bullet").each(function(){stop_danmu($(this))});
+        if (api.playing) $(".bullet").each(function(){start_danmu($(this))});
+    });
+});
 
 var fire_danmu = function() {
     var gun = document.getElementsByClassName("danmu-bore")[0];
@@ -228,7 +225,7 @@ var fire_danmu = function() {
     gun.value = "";
     $.post("https://danmu.quack.press/send", bullet, function(data, status) {
             bullet["id"] = data;
-            shoot_danmu(bullet);
+            shoot_danmu(bullet, true);
             setTimeout(function(){danmu.push(bullet);}, 500);
             });
     return false;
