@@ -52,7 +52,7 @@ module.exports = function(grunt) {
             },
             compress: {
                 files: {
-                    'assets/danmuplayer.min.css': [
+                    'assets/css/danmuplayer.min.css': [
                         "assets/css/danmu.css",
                         "assets/css/player.css"
                     ]

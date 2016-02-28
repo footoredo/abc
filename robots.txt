@@ -1,0 +1,4 @@
+User-agent: *
+Sitemap: https://quack.press/sitemap.xml
+Disallow: /ghost
+Disallow: /tag
