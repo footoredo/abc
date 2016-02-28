@@ -22,15 +22,55 @@ module.exports = function(grunt) {
             }
         },
 
+        concat: {
+            options: {
+                separator: ';',
+                stripBanners: true
+            },
+            dist: {
+                src: [
+                    "assets/js/danmu.js",
+                    "assets/js/player.js"
+                ],
+                dest: "assets/js/danmuplayer.js"
+            }
+        },
+
+        uglify: {
+            options: {
+            },
+            dist: {
+                files: {
+                    "assets/js/danmuplayer.min.js": "assets/js/danmuplayer.js"
+                }
+            }
+        },
+
+        cssmin: {
+            options: {
+                keepSpecialComments: 0 
+            },
+            compress: {
+                files: {
+                    'assets/danmuplayer.min.css': [
+                        "assets/css/danmu.css",
+                        "assets/css/player.css"
+                    ]
+                }
+            }
+        },
+
         watch: {
             sass: {
                 files: 'assets/scss/**/*.scss',
                 tasks: ['sass']
             }
         }
-
     });
 
-    grunt.registerTask('default', ['sass', 'watch']);
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.registerTask('default', ['sass', 'concat', 'uglify', 'cssmin', 'watch']);
 
 };
