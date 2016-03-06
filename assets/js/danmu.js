@@ -150,7 +150,7 @@ $(document).ready(function() {
     if (!api) return;
 
     video_id = $(".flowplayer").attr("id");
-    $.get("https://danmu.quack.press/get/video/" + video_id, function(data, status) {
+    $.get("https://danmu.quack.press/danmu/" + video_id, function(data, status) {
         danmu = JSON.parse(data);
         danmu = danmu.sort(function(a,b){return a["send_time"]-b["send_time"]});
         console.log("Danmu loaded.");
@@ -223,7 +223,7 @@ var fire_danmu = function() {
     }
 
     gun.value = "";
-    $.post("https://danmu.quack.press/send", bullet, function(data, status) {
+    $.post("https://danmu.quack.press/danmu/send", bullet, function(data, status) {
             bullet["id"] = data;
             shoot_danmu(bullet, true);
             setTimeout(function(){danmu.push(bullet);}, 500);
